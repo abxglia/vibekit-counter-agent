@@ -189,7 +189,17 @@ export async function POST(request: Request) {
           console.log('🔍 [ROUTE] OpenRouter provider type:', typeof openRouterProvider);
           console.log('🔍 [ROUTE] OpenRouter provider methods:', Object.keys(openRouterProvider));
 
-          const model = openRouterProvider.languageModel(selectedChatModel);
+          // Map frontend model names to provider model IDs
+          const modelMapping: Record<string, string> = {
+            'deepseek/deepseek-chat-v3-0324:free': 'chat-model',
+            'chat-model': 'chat-model',
+            'chat-model-medium': 'chat-model-medium',
+          };
+          
+          const mappedModelId = modelMapping[selectedChatModel] || 'chat-model';
+          console.log('🔍 [ROUTE] Mapped model ID:', mappedModelId, 'from:', selectedChatModel);
+          
+          const model = openRouterProvider.languageModel(mappedModelId);
           console.log('✅ [ROUTE] Language model retrieved successfully');
           console.log('🔍 [ROUTE] Model details:', {
             modelType: typeof model,
@@ -272,7 +282,7 @@ export async function POST(request: Request) {
           console.log('✅ [ROUTE] StreamText created successfully');
 
           result.mergeIntoDataStream(dataStream, {
-            sendReasoning: true,
+            sendReasoning: false,
           });
 
           console.log('✅ [ROUTE] Result merged into data stream');
